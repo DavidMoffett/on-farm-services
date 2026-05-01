@@ -331,6 +331,35 @@ function renderCropInventoryDropdown() {
   });
 }
 
+function setDropdownByPaddockName(dropdownId, paddockName) {
+  const dropdown = document.getElementById(dropdownId);
+  if (!dropdown) return;
+
+  const index = paddocks.findIndex((p) => p.name === paddockName);
+
+  if (index >= 0) {
+    dropdown.value = String(index);
+  }
+}
+
+function goToAddJobFromMap(paddockName) {
+  showSection("jobs");
+  setDropdownByPaddockName("jobPaddock", paddockName);
+  document.getElementById("jobType").focus();
+}
+
+function goToAddFeedFromMap(paddockName) {
+  showSection("feed");
+  setDropdownByPaddockName("feedPaddock", paddockName);
+  document.getElementById("feedRecordType").focus();
+}
+
+function goToMoveStockFromMap(paddockName) {
+  showSection("stock");
+  setDropdownByPaddockName("stockFromPaddock", paddockName);
+  document.getElementById("stockUnit").focus();
+}
+
 function handleJobTypeChange() {
   const jobType = document.getElementById("jobType").value;
   const feedType = document.getElementById("feedType");
@@ -953,6 +982,12 @@ function showPaddockDetail(index) {
     Area: ${p.area || "-"} ha<br>
     Use: ${p.use || "-"}<br>
     Notes: ${p.notes || "-"}<br><br>
+
+    <strong>Actions</strong><br>
+    <button onclick="goToAddJobFromMap('${p.name}')">Add Job</button>
+    <button onclick="goToAddFeedFromMap('${p.name}')">Add Feed</button>
+    <button onclick="goToMoveStockFromMap('${p.name}')">Move Stock</button>
+    <br><br>
 
     ${renderMapList(
       "Recent Jobs",
