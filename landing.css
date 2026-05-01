@@ -1,0 +1,113 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #c6e6b8;
+  color: #1f2a24;
+}
+
+.landing-header {
+  background: #1f3d2b;
+  color: #ffffff;
+  padding: 24px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-button {
+  background: white;
+  color: #1f3d2b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.hero-section,
+.card-section,
+.compare-section,
+.pricing-section,
+.final-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.hero-section h2 {
+  font-size: 36px;
+}
+
+.primary-button {
+  background: #1f3d2b;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.secondary-button {
+  background: white;
+  color: #1f3d2b;
+  border: 1px solid #1f3d2b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.feature-card {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #c0ddb3;
+}
+
+.comparison-table {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid #d9ead2;
+}
+
+.comparison-row div {
+  padding: 10px;
+}
+
+.comparison-head {
+  background: #1f3d2b;
+  color: white;
+  font-weight: 700;
+}
+
+.pricing-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 0 auto;
+  border: 1px solid #c0ddb3;
+}
+
+.price {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.final-section {
+  text-align: center;
+}
