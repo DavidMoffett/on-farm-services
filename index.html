@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On Farm Services</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <div>
+      <h1>On Farm Services</h1>
+      <p>Simple tools for practical farm management.</p>
+    </div>
+  </header>
+
+  <nav class="app-nav">
+    <button class="nav-button active" onclick="showSection('paddocks')">Paddocks</button>
+    <button class="nav-button" onclick="showSection('jobs')">Jobs</button>
+    <button class="nav-button" onclick="showSection('feed')">Feed</button>
+    <button class="nav-button" onclick="showSection('stock')">Stock</button>
+    <button class="nav-button" onclick="showSection('equipment')">Equipment</button>
+    <button class="nav-button" onclick="showSection('crops')">Crops</button>
+    <button class="nav-button" onclick="showSection('inventory')">Inventory</button>
+    <button class="nav-button" onclick="showSection('map')">Map</button>
+  </nav>
+
+  <main class="app-main">
+
+    <div id="paddocksSection">
+      <section class="hero-card">
+        <h2>Paddock Register</h2>
+        <p>Add and track paddocks for your farm.</p>
+      </section>
+
+      <section class="form-card">
+        <h3>Add Paddock</h3>
+        <input id="name" placeholder="Paddock Name" />
+        <input id="area" placeholder="Area (ha)" />
+
+        <select id="use">
+          <option value="">Select Use</option>
+          <option value="Grazing">Grazing</option>
+          <option value="Cropping">Cropping</option>
+          <option value="Hay / Silage">Hay / Silage</option>
+          <option value="Holding">Holding</option>
+          <option value="Laneway">Laneway</option>
+          <option value="Yards">Yards</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <textarea id="notes" placeholder="Notes"></textarea>
+        <button onclick="addPaddock()">Add Paddock</button>
+      </section>
+
+      <section class="list-card">
+        <h3>Saved Paddocks</h3>
+        <div id="paddockList"></div>
+      </section>
+    </div>
+
+    <div id="jobsSection" style="display:none;">
+      <section class="hero-card">
+        <h2>Farm Jobs</h2>
+        <p>Track work across your paddocks.</p>
+      </section>
+
+      <section class="form-card">
+        <h3>Add Job</h3>
+        <input id="jobDate" type="date" />
+
+        <select id="jobPaddock">
+          <option value="">Select Paddock</option>
+        </select>
+
+        <select id="jobType" onchange="handleJobTypeChange()">
+          <option value="">Select Job Type</option>
+          <option value="Spraying">Spraying</option>
+          <option value="Feeding">Feeding</option>
+          <option value="Moving Stock">Moving Stock</option>
+          <option value="Irrigation">Irrigation</option>
+          <option value="Fencing">Fencing</option>
+          <option value="Maintenance">Maintenance</option>
+          <option value="Cultivating">Cultivating</option>
+          <option value="Sowing">Sowing</option>
+          <option value="Hay Cutting">Hay Cutting</option>
+          <option value="Hay Baling">Hay Baling</option>
+          <option value="Hay Storing">Hay Storing</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <select id="feedType" style="display:none;">
+          <option value="">Select Feed Type</option>
+          <option value="Hay">Hay</option>
+          <option value="Silage">Silage</option>
+          <option value="Mix">Mix</option>
+          <option value="Meal">Meal</option>
+          <option value="Grain">Grain</option>
+          <option value="Minerals">Minerals</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <select id="jobStatus">
+          <option value="">Select Status</option>
+          <option value="Planned">Planned</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Done">Done</option>
+        </select>
+
+        <select id="jobPriority">
+          <option value="">Select Priority</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+
+        <textarea id="jobNotes" placeholder="Job notes"></textarea>
+        <button onclick="addJob()">Add Job</button>
+      </section>
+
+      <section class="list-card">
+        <h3>Saved Jobs</h3>
+        <p>No jobs saved yet.</p>
+      </section>
+    </div>
+
+    <div id="feedSection" style="display:none;">
+      <section class="hero-card">
+        <h2>Feed Register</h2>
+        <p>Record what was fed, where, and when.</p>
+      </section>
+
+      <section class="form-card">
+        <h3>Add Feed Record</h3>
+        <input id="feedDate" type="date" />
+
+        <select id="feedPaddock">
+          <option value="">Select Paddock</option>
+        </select>
+
+        <select id="feedRecordType">
+          <option value="">Select Feed Type</option>
+          <option value="Hay">Hay</option>
+          <option value="Silage">Silage</option>
+          <option value="Mix">Mix</option>
+          <option value="Meal">Meal</option>
+          <option value="Grain">Grain</option>
+          <option value="Minerals">Minerals</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <input id="feedAmount" placeholder="Amount" />
+        <textarea id="feedNotes" placeholder="Feed notes"></textarea>
+        <button onclick="addFeedRecord()">Add Feed Record</button>
+      </section>
+
+      <section class="list-card">
+        <h3>Saved Feed Records</h3>
+        <div id="feedList"></div>
+      </section>
+    </div>
+
+    <div id="stockSection" style="display:none;">
+      <section class="hero-card">
+        <h2>Stock Movements</h2>
+        <p>Record stock units moving between paddocks.</p>
+      </section>
+
+      <section class="form-card">
+        <h3>Add Stock Movement</h3>
+        <input id="stockDate" type="date" />
+        <input id="stockUnit" placeholder="Stock Unit e.g. SU1" />
+        <input id="stockDescription" placeholder="What it is e.g. 1000 ewes" />
+
+        <select id="stockFromPaddock">
+          <option value="">From Paddock</option>
+        </select>
+
+        <select id="stockToPaddock">
+          <option value="">To Paddock</option>
+        </select>
+
+        <input id="stockReason" placeholder="Reason e.g. Fresh break" />
+        <textarea id="stockNotes" placeholder="Stock notes"></textarea>
+        <button onclick="addStockMovement()">Add Stock Movement</button>
+      </section>
+
+      <section class="list-card">
+        <h3>Saved Stock Movements</h3>
+        <div id="stockList"></div>
+      </section>
+    </div>
+
+    <div id="equipmentSection" style="display:none;">
+      <section class="hero-card">
+        <h2>Equipment Register</h2>
+        <p>Record key farm gear and current status.</p>
+      </section>
+
+      <section class="form-card">
+        <h3>Add Equipment</h3>
+        <input id="equipmentName" placeholder="Equipment Name e.g. John Deere 6150R" />
+
+        <select id="equipmentType">
+          <option value="">Select Type</option>
+          <option value="Tractor">Tractor</option>
+          <option value="Implement">Implement</option>
+          <option value="Vehicle">Vehicle</option>
+          <option value="Trailer">Trailer</option>
+          <option value="Irrigation">Irrigation</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <select id="equipmentStatus">
+          <option value="">Select Status</option>
+          <option value="Available">Available</option>
+          <option value="In Use">In Use</option>
+          <option value="Needs Repair">Needs Repair</option>
+        </select>
+
+        <textarea id="equipmentNotes" placeholder="Equipment notes"></textarea>
+        <button onclick="addEquipment()">Add Equipment</button>
+      </section>
+
+      <section class="list-card">
+        <h3>Saved Equipment</h3>
+        <div id="equipmentList"></div>
+      </section>
+    </div>
+
+    <div id="cropsSection" style="display:none;">
+      <section class="hero-card">
+        <h2>Crops Register</h2>
+        <p>Record crop activity by paddock.</p>
+      </section>
+
+      <section class="form-card">
+        <h3>Add Crop Record</h3>
+        <input id="cropDate" type="date" />
+
+        <select id="cropPaddock">
+          <option value="">Select Paddock</option>
+        </select>
+
+        <select id="cropActivity">
+          <option value="">Select Activity</option>
+          <option value="Cultivating">Cultivating</option>
+          <option value="Sowing">Sowing</option>
+          <option value="Spraying">Spraying</option>
+          <option value="Fertilising">Fertilising</option>
+          <option value="Inspecting">Inspecting</option>
+          <option value="Harvesting">Harvesting</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <input id="cropName" placeholder="Crop e.g. Kale, Barley, Grass" />
+
+        <select id="cropInventoryItem">
+          <option value="">Select Inventory Item (optional)</option>
+        </select>
+
+        <input id="cropAmountUsed" placeholder="Amount Used e.g. 200 kg" />
+
+        <select id="cropStatus">
+          <option value="">Select Status</option>
+          <option value="Planned">Planned</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Done">Done</option>
+        </select>
+
+        <textarea id="cropNotes" placeholder="Crop notes"></textarea>
+        <button onclick="addCropRecord()">Add Crop Record</button>
+      </section>
+
+      <section class="list-card">
+        <h3>Saved Crop Records</h3>
+        <div id="cropList"></div>
+      </section>
+    </div>
+
+    <div id="inventorySection" style="display:none;">
+      <section class="hero-card">
+        <h2>Inventory</h2>
+        <p>Track key supplies and flag low stock.</p>
+      </section>
+
+      <section class="form-card">
+        <h3>Add Inventory Item</h3>
+
+        <input id="inventoryName" placeholder="Item Name e.g. Urea, Baleage, Ryegrass Seed" />
+
+        <select id="inventoryCategory">
+          <option value="">Select Category</option>
+          <option value="Feed">Feed</option>
+          <option value="Seed">Seed</option>
+          <option value="Fertiliser">Fertiliser</option>
+          <option value="Chemical">Chemical</option>
+          <option value="Animal Health">Animal Health</option>
+          <option value="Fuel">Fuel</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <input id="inventoryAmount" placeholder="Current Stock e.g. 500 kg" />
+        <input id="inventoryReorderLevel" placeholder="Reorder Level e.g. 100 kg" />
+        <textarea id="inventoryNotes" placeholder="Inventory notes"></textarea>
+
+        <button onclick="addInventoryItem()">Add Inventory Item</button>
+      </section>
+
+      <section class="list-card">
+        <h3>Saved Inventory</h3>
+        <div id="inventoryList"></div>
+      </section>
+    </div>
+
+    <div id="mapSection" style="display:none;">
+      <section class="hero-card">
+        <h2>Farm Map</h2>
+        <p>Tap a paddock to view its details.</p>
+      </section>
+
+      <section class="list-card">
+        <h3>Paddocks</h3>
+        <div id="mapGrid"></div>
+      </section>
+
+      <section class="form-card" id="mapDetail" style="display:none;">
+        <h3 id="mapPaddockName"></h3>
+        <p id="mapPaddockInfo"></p>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

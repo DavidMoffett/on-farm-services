@@ -1,0 +1,116 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #c6e6b8;
+  color: #1f2a24;
+}
+
+.app-header {
+  background: #1f3d2b;
+  color: #ffffff;
+  padding: 28px 20px;
+}
+
+.app-nav {
+  padding: 14px 20px;
+  background: #2e5b3f;
+}
+
+.nav-button {
+  border: none;
+  background: #ffffff;
+  color: #1f3d2b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  margin: 4px;
+}
+
+.nav-button.active {
+  background: #1f3d2b;
+  color: #ffffff;
+}
+
+.app-main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.hero-card,
+.form-card,
+.list-card {
+  background: #ffffff;
+  border: 1px solid #c0ddb3;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #aecd9f;
+  border-radius: 6px;
+}
+
+button {
+  background: #1f3d2b;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.paddock-item {
+  border-top: 1px solid #d9ead2;
+  padding: 10px 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 4px 0;
+}
+
+.status-planned {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.status-in-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.low-stock-warning {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+#mapGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.map-paddock-button {
+  min-height: 70px;
+  font-weight: 700;
+}
