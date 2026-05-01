@@ -1,226 +1,149 @@
-* {
-  box-sizing: border-box;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On Farm Services</title>
+  <link rel="stylesheet" href="landing.css" />
+</head>
+<body>
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #c6e6b8;
-  color: #1f2a24;
-}
+  <header class="landing-header">
+    <div>
+      <h1>On Farm Services</h1>
+      <p>The farm tool farmers don’t get sick of using.</p>
+    </div>
+    <a class="header-button" href="index.html">Open App</a>
+  </header>
 
-.landing-header {
-  background: #1f3d2b;
-  color: #ffffff;
-  padding: 24px 20px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-}
+  <main>
 
-.landing-header h1 {
-  margin: 0 0 6px;
-}
+    <section class="hero-section">
+      <h2>Farm management without the bloat.</h2>
+      <p>
+        Most farm software starts useful, then gets heavy. On Farm Services is built for farmers
+        who want a simple, practical tool they can actually use every day.
+      </p>
 
-.landing-header p {
-  margin: 0;
-}
+      <div class="hero-actions">
+        <a class="primary-button" href="index.html">Try On Farm Services</a>
+        <a class="secondary-button" href="#pricing">See Pricing</a>
+      </div>
+    </section>
 
-.header-button,
-.primary-button,
-.secondary-button {
-  display: inline-block;
-  text-decoration: none;
-  border-radius: 10px;
-  font-weight: 700;
-  padding: 12px 16px;
-}
+    <section class="card-section">
+      <h2>Built around real farm work</h2>
 
-.header-button {
-  background: #ffffff;
-  color: #1f3d2b;
-}
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Paddocks</h3>
+          <p>Keep a simple register of paddocks, use, area, and notes.</p>
+        </div>
 
-.primary-button {
-  background: #1f3d2b;
-  color: #ffffff;
-}
+        <div class="feature-card">
+          <h3>Jobs</h3>
+          <p>Track work by paddock, priority, date, and status.</p>
+        </div>
 
-.secondary-button {
-  background: #ffffff;
-  color: #1f3d2b;
-  border: 1px solid #1f3d2b;
-}
+        <div class="feature-card">
+          <h3>Feed</h3>
+          <p>Record what was fed, where, and when.</p>
+        </div>
 
-.hero-section,
-.card-section,
-.compare-section,
-.pricing-section,
-.final-section {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 34px 20px;
-}
+        <div class="feature-card">
+          <h3>Stock</h3>
+          <p>Move stock units between paddocks and keep a clear movement trail.</p>
+        </div>
 
-.hero-section {
-  padding-top: 54px;
-  padding-bottom: 44px;
-}
+        <div class="feature-card">
+          <h3>Inventory</h3>
+          <p>Track supplies and get a clear low-stock warning.</p>
+        </div>
 
-.hero-section h2,
-.card-section h2,
-.compare-section h2,
-.pricing-section h2,
-.final-section h2 {
-  margin-top: 0;
-  color: #1f3d2b;
-}
+        <div class="feature-card">
+          <h3>Map</h3>
+          <p>Tap a paddock to see the records that matter.</p>
+        </div>
+      </div>
+    </section>
 
-.hero-section h2 {
-  font-size: 40px;
-  margin-bottom: 12px;
-}
+    <section class="compare-section">
+      <h2>Simple by design</h2>
+      <p class="section-intro">
+        These comparison figures are placeholder market-positioning estimates for now.
+      </p>
 
-.hero-section p {
-  max-width: 720px;
-  font-size: 18px;
-  line-height: 1.5;
-}
+      <div class="comparison-table">
+        <div class="comparison-row comparison-head">
+          <div>Feature</div>
+          <div>On Farm Services</div>
+          <div>Typical large farm platforms</div>
+        </div>
 
-.hero-actions {
-  margin-top: 24px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+        <div class="comparison-row">
+          <div>Price</div>
+          <div>$10 NZD / month<br>$100 NZD / year</div>
+          <div>$30–$260+ / month</div>
+        </div>
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 14px;
-}
+        <div class="comparison-row">
+          <div>Daily use</div>
+          <div>Fast, simple, practical</div>
+          <div>Can become heavy</div>
+        </div>
 
-.feature-card,
-.pricing-card,
-.comparison-table {
-  background: #ffffff;
-  border: 1px solid #c0ddb3;
-  border-radius: 14px;
-}
+        <div class="comparison-row">
+          <div>Setup</div>
+          <div>Start small, build as needed</div>
+          <div>Often requires onboarding</div>
+        </div>
 
-.feature-card {
-  padding: 18px;
-}
+        <div class="comparison-row">
+          <div>Best for</div>
+          <div>Farmers who want to get things recorded quickly</div>
+          <div>Businesses needing broad enterprise systems</div>
+        </div>
 
-.feature-card h3 {
-  margin-top: 0;
-  color: #1f3d2b;
-}
+        <div class="comparison-row">
+          <div>Core idea</div>
+          <div>No bloat. No bullshit. No boredom.</div>
+          <div>More features, more process</div>
+        </div>
+      </div>
+    </section>
 
-.feature-card p {
-  margin-bottom: 0;
-  line-height: 1.45;
-}
+    <section id="pricing" class="pricing-section">
+      <h2>Simple pricing</h2>
 
-.section-intro {
-  max-width: 720px;
-  line-height: 1.5;
-}
+      <div class="pricing-card">
+        <h3>On Farm Services</h3>
+        <p class="price">$10 NZD / month</p>
+        <p class="year-price">or $100 NZD / year</p>
 
-.comparison-table {
-  overflow: hidden;
-}
+        <ul>
+          <li>Paddocks</li>
+          <li>Jobs</li>
+          <li>Feed</li>
+          <li>Stock movements</li>
+          <li>Equipment</li>
+          <li>Crops</li>
+          <li>Inventory</li>
+          <li>Farm map view</li>
+        </ul>
 
-.comparison-row {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr 1.2fr;
-  border-top: 1px solid #d9ead2;
-}
+        <a class="primary-button full-width" href="index.html">Access App</a>
+      </div>
+    </section>
 
-.comparison-row:first-child {
-  border-top: none;
-}
+    <section class="final-section">
+      <h2>Built for the paddock, not the boardroom.</h2>
+      <p>
+        If a farmer can’t use it quickly, standing in a paddock, it doesn’t belong.
+      </p>
+      <a class="primary-button" href="index.html">Open On Farm Services</a>
+    </section>
 
-.comparison-row div {
-  padding: 14px;
-  line-height: 1.4;
-}
+  </main>
 
-.comparison-head {
-  background: #1f3d2b;
-  color: #ffffff;
-  font-weight: 700;
-}
-
-.pricing-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.pricing-card {
-  width: 100%;
-  max-width: 420px;
-  padding: 24px;
-}
-
-.pricing-card h3 {
-  margin-top: 0;
-  color: #1f3d2b;
-}
-
-.price {
-  font-size: 34px;
-  font-weight: 800;
-  margin: 12px 0 4px;
-}
-
-.year-price {
-  margin-top: 0;
-  color: #466352;
-}
-
-.pricing-card ul {
-  padding-left: 20px;
-  line-height: 1.8;
-}
-
-.full-width {
-  width: 100%;
-  text-align: center;
-}
-
-.final-section {
-  text-align: center;
-  padding-bottom: 54px;
-}
-
-.final-section p {
-  font-size: 18px;
-  margin-bottom: 24px;
-}
-
-@media (max-width: 700px) {
-  .hero-section h2 {
-    font-size: 32px;
-  }
-
-  .comparison-row {
-    grid-template-columns: 1fr;
-  }
-
-  .comparison-head {
-    display: none;
-  }
-
-  .comparison-row div {
-    border-top: 1px solid #d9ead2;
-  }
-
-  .comparison-row div:first-child {
-    background: #eef8e9;
-    font-weight: 700;
-  }
-}
+</body>
+</html>

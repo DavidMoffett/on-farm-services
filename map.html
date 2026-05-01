@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OFS Map</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f3eb; /* parchment/sand tone */
+    }
+
+    .top-bar {
+      background: #2f4f2f;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .top-bar button {
+      background: #ffffff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .map-container {
+      height: calc(100vh - 50px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #444;
+      font-size: 18px;
+    }
+
+    .placeholder {
+      text-align: center;
+      border: 2px dashed #999;
+      padding: 40px;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <h1>Farm Map (Coming Next)</h1>
+    <button onclick="goBack()">← Back to App</button>
+  </div>
+
+  <div class="map-container">
+    <div class="placeholder">
+      🌾 Map will go here<br><br>
+      Next step:<br>
+      • Draw paddocks<br>
+      • Link to OFS paddocks<br>
+      • Enable map actions
+    </div>
+  </div>
+
+  <script>
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>

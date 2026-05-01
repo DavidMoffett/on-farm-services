@@ -9,6 +9,7 @@ let cropRecords = JSON.parse(localStorage.getItem("cropRecords")) || [];
 let inventoryItems = JSON.parse(localStorage.getItem("inventoryItems")) || [];
 
 let currentFilter = "All";
+let mapReturnPaddockName = "";
 
 function formatDate(dateValue) {
   if (!dateValue) return "";
@@ -95,6 +96,24 @@ function deductInventoryAmount(index, amountUsedText) {
   saveInventoryItems();
 
   return item.name;
+}
+
+function returnToMapPaddockDetail(paddockName) {
+  if (!mapReturnPaddockName || mapReturnPaddockName !== paddockName) {
+    return false;
+  }
+
+  const paddockIndex = paddocks.findIndex((p) => p.name === paddockName);
+
+  mapReturnPaddockName = "";
+
+  if (paddockIndex < 0) {
+    return false;
+  }
+
+  showSection("map");
+  showPaddockDetail(paddockIndex);
+  return true;
 }
 
 function showSection(sectionName) {
@@ -186,6 +205,73 @@ function addPaddock() {
   renderCropPaddockDropdown();
   renderMap();
   clearPaddockForm();
+}
+
+function bulkAddPaddocks() {
+  const bulkInput = document.getElementById("bulkPaddocks");
+
+  if (!bulkInput) {
+    return;
+  }
+
+  const rawText = bulkInput.value;
+
+  if (!rawText.trim()) {
+    alert("Paste at least one paddock name");
+    return;
+  }
+
+  const existingNames = paddocks.map((p) => String(p.name || "").trim().toLowerCase());
+
+  const names = rawText
+    .split(/\r?\n/)
+    .map((name) => name.trim())
+    .filter((name) => name.length > 0);
+
+  let addedCount = 0;
+  let skippedCount = 0;
+
+  names.forEach((name) => {
+    const cleanName = name.trim();
+    const lowerName = cleanName.toLowerCase();
+
+    if (!cleanName || existingNames.includes(lowerName)) {
+      skippedCount += 1;
+      return;
+    }
+
+    paddocks.push({
+      name: cleanName,
+      area: "",
+      use: "",
+      notes: ""
+    });
+
+    existingNames.push(lowerName);
+    addedCount += 1;
+  });
+
+  savePaddocks();
+  renderPaddocks();
+  renderJobPaddockDropdown();
+  renderFeedPaddockDropdown();
+  renderStockPaddockDropdowns();
+  renderCropPaddockDropdown();
+  renderMap();
+
+  bulkInput.value = "";
+
+  if (addedCount > 0 && skippedCount > 0) {
+    alert(`${addedCount} paddocks added. ${skippedCount} duplicate/blank entries skipped.`);
+    return;
+  }
+
+  if (addedCount > 0) {
+    alert(`${addedCount} paddocks added.`);
+    return;
+  }
+
+  alert("No new paddocks added. They may already exist.");
 }
 
 function clearPaddockForm() {
@@ -343,18 +429,21 @@ function setDropdownByPaddockName(dropdownId, paddockName) {
 }
 
 function goToAddJobFromMap(paddockName) {
+  mapReturnPaddockName = paddockName;
   showSection("jobs");
   setDropdownByPaddockName("jobPaddock", paddockName);
   document.getElementById("jobType").focus();
 }
 
 function goToAddFeedFromMap(paddockName) {
+  mapReturnPaddockName = paddockName;
   showSection("feed");
   setDropdownByPaddockName("feedPaddock", paddockName);
   document.getElementById("feedRecordType").focus();
 }
 
 function goToMoveStockFromMap(paddockName) {
+  mapReturnPaddockName = paddockName;
   showSection("stock");
   setDropdownByPaddockName("stockFromPaddock", paddockName);
   document.getElementById("stockUnit").focus();
@@ -403,6 +492,10 @@ function addJob() {
   saveJobs();
   renderJobs();
   clearJobForm();
+
+  if (returnToMapPaddockDetail(paddockName)) {
+    return;
+  }
 }
 
 function clearJobForm() {
@@ -547,6 +640,10 @@ function addFeedRecord() {
   saveFeedRecords();
   renderFeedRecords();
   clearFeedForm();
+
+  if (returnToMapPaddockDetail(paddockName)) {
+    return;
+  }
 }
 
 function clearFeedForm() {
@@ -623,6 +720,10 @@ function addStockMovement() {
   saveStockMovements();
   renderStockMovements();
   clearStockForm();
+
+  if (returnToMapPaddockDetail(fromPaddockName)) {
+    return;
+  }
 }
 
 function clearStockForm() {
