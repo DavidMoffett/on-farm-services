@@ -2,78 +2,1965 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OFS Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>OFS Map v3</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f3eb; /* parchment/sand tone */
+    :root {
+      --green: #2f6f3e;
+      --green-dark: #245632;
+      --green-soft: #dff1df;
+      --grass: #d8ead0;
+      --panel: #ffffff;
+      --border: #b7d2aa;
+      --text: #1f2a1f;
+      --muted: #5f6f5f;
+      --amber: #f5b642;
+      --red: #b84032;
+      --blue: #2f5870;
+      --blackout: rgba(0, 0, 0, 0.35);
+      --shadow: 0 8px 22px rgba(31, 42, 31, 0.18);
     }
 
-    .top-bar {
-      background: #2f4f2f;
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--grass);
+      color: var(--text);
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--grass);
+    }
+
+    .topbar {
+      flex-shrink: 0;
+      background: var(--green);
       color: white;
-      padding: 12px 16px;
+      padding: 8px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      z-index: 30;
+      box-shadow: var(--shadow);
     }
 
-    .top-bar h1 {
-      margin: 0;
-      font-size: 18px;
+    .brand-title {
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1;
     }
 
-    .top-bar button {
-      background: #ffffff;
+    .brand-subtitle {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-top: 3px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    button,
+    label.button,
+    a.button {
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
+      border-radius: 10px;
+      min-height: 40px;
+      padding: 8px 11px;
+      font-weight: 900;
+      font-size: 13px;
       cursor: pointer;
+      background: white;
+      color: var(--green-dark);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+      user-select: none;
     }
 
-    .map-container {
-      height: calc(100vh - 50px);
+    button:active,
+    label.button:active,
+    a.button:active {
+      transform: scale(0.98);
+    }
+
+    .primary {
+      background: var(--green-dark);
+      color: white;
+    }
+
+    .soft {
+      background: var(--green-soft);
+      color: var(--green-dark);
+      border: 1px solid var(--border);
+    }
+
+    .danger {
+      background: #f8dfdc;
+      color: var(--red);
+      border: 1px solid #e7a9a2;
+    }
+
+    .job {
+      background: var(--green-dark);
+      color: white;
+    }
+
+    .feed {
+      background: var(--amber);
+      color: #3b2a00;
+    }
+
+    .stock {
+      background: var(--blue);
+      color: white;
+    }
+
+    .map-shell {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      background: #edf7e9;
+    }
+
+    .quickbar {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      z-index: 18;
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      pointer-events: none;
+    }
+
+    .quickbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .quickbar button,
+    .quickbar label,
+    .quickbar a {
+      pointer-events: auto;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+      white-space: nowrap;
+    }
+
+    .map-scroll {
+      position: absolute;
+      inset: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      background:
+        linear-gradient(45deg, rgba(47, 111, 62, 0.08) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(47, 111, 62, 0.08) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(47, 111, 62, 0.08) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(47, 111, 62, 0.08) 75%);
+      background-size: 26px 26px;
+      background-position: 0 0, 0 13px, 13px -13px, -13px 0;
+    }
+
+    .map-stage {
+      position: relative;
+      min-width: 100%;
+      min-height: 100%;
+    }
+
+    .map-image {
+      display: none;
+      width: 100%;
+      min-width: 900px;
+      height: auto;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .empty-map {
+      position: absolute;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #444;
-      font-size: 18px;
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
     }
 
-    .placeholder {
-      text-align: center;
-      border: 2px dashed #999;
-      padding: 40px;
-      border-radius: 12px;
-      background: #ffffff;
+    .empty-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      max-width: 430px;
+      box-shadow: var(--shadow);
     }
+
+    .empty-card h2 {
+      margin: 0 0 8px;
+      color: var(--green-dark);
+    }
+
+    .empty-card p {
+      margin: 0 0 14px;
+      line-height: 1.45;
+    }
+
+    .pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      border: 3px solid white;
+      border-radius: 999px;
+      background: var(--green);
+      color: white;
+      min-width: 62px;
+      min-height: 46px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.28);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .pin.blank {
+      background: white;
+      color: var(--green-dark);
+      border: 3px dashed var(--green-dark);
+    }
+
+    .pin.selected {
+      background: var(--amber);
+      color: #3b2a00;
+      border-color: white;
+      z-index: 8;
+    }
+
+    .pin.dragging {
+      opacity: 0.9;
+      transform: translate(-50%, -50%) scale(1.05);
+      z-index: 10;
+    }
+
+    .floating-status {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 10px;
+      z-index: 16;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 900;
+      color: var(--green-dark);
+      box-shadow: var(--shadow);
+      pointer-events: none;
+      font-size: 13px;
+    }
+
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--blackout);
+      z-index: 40;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .sheet-backdrop.open {
+      display: flex;
+    }
+
+    .sheet {
+      width: 100%;
+      max-height: 86vh;
+      overflow-y: auto;
+      background: var(--panel);
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.25);
+      padding: 14px;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .sheet-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--green-dark);
+      line-height: 1.1;
+    }
+
+    .sheet-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .close-btn {
+      min-width: 44px;
+      border-radius: 999px;
+      font-size: 18px;
+      padding: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--green-dark);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 16px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fbfffa;
+      color: var(--text);
+    }
+
+    .field textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .button-row button {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .action-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .action-tabs button {
+      min-height: 48px;
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    .action-tabs button.active {
+      outline: 3px solid rgba(47, 111, 62, 0.25);
+    }
+
+    .record-panel {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fbfffa;
+      margin-top: 8px;
+    }
+
+    .record-title {
+      font-weight: 900;
+      color: var(--green-dark);
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .recent {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .recent-title {
+      font-weight: 900;
+      color: var(--green-dark);
+      font-size: 16px;
+    }
+
+    .recent-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .recent-item strong {
+      color: var(--green-dark);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (min-width: 800px) {
+      .sheet {
+        max-width: 520px;
+        border-radius: 22px;
+        margin: 0 0 22px;
+      }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </style>
 </head>
-<body>
 
-  <div class="top-bar">
-    <h1>Farm Map (Coming Next)</h1>
-    <button onclick="goBack()">← Back to App</button>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <div class="brand-title">OFS Map v3</div>
+        <div class="brand-subtitle">Map. Pin. Enter data. Done.</div>
+      </div>
+
+      <div class="top-actions">
+        <a class="button" href="index.html">OFS</a>
+        <label class="button soft" for="mapImageInputTop">Map</label>
+        <input id="mapImageInputTop" type="file" accept="image/*" style="display:none;" />
+      </div>
+    </header>
+
+    <section class="map-shell">
+      <div class="quickbar">
+        <button class="primary" type="button" onclick="addBlankPin()">+ Pin</button>
+        <label class="button soft" for="mapImageInputQuick">Upload Map</label>
+        <input id="mapImageInputQuick" type="file" accept="image/*" style="display:none;" />
+        <button class="soft" type="button" onclick="saveEverything()">Save</button>
+        <button class="danger" type="button" onclick="resetPins()">Reset Pins</button>
+        <button class="danger" type="button" onclick="clearMapImage()">Clear Map</button>
+      </div>
+
+      <div id="mapScroll" class="map-scroll">
+        <div id="mapStage" class="map-stage">
+          <div id="emptyMap" class="empty-map">
+            <div class="empty-card">
+              <h2>Load Farm Map</h2>
+              <p>Upload Fergie’s farm map. Then tap <strong>+ Pin</strong>, drag it onto a paddock, tap the pin, enter data, done.</p>
+              <label class="button primary" for="mapImageInputEmpty">Upload Map</label>
+              <input id="mapImageInputEmpty" type="file" accept="image/*" style="display:none;" />
+            </div>
+          </div>
+
+          <img id="mapImage" class="map-image" alt="Farm map" />
+          <div id="pinLayer"></div>
+        </div>
+      </div>
+
+      <div id="statusBox" class="floating-status">Ready. Upload map or add pin.</div>
+    </section>
   </div>
 
-  <div class="map-container">
-    <div class="placeholder">
-      🌾 Map will go here<br><br>
-      Next step:<br>
-      • Draw paddocks<br>
-      • Link to OFS paddocks<br>
-      • Enable map actions
-    </div>
+  <div id="sheetBackdrop" class="sheet-backdrop">
+    <section class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <div>
+          <div id="sheetTitle" class="sheet-title">Pin</div>
+          <div id="sheetSubtitle" class="sheet-subtitle">Name paddock and enter data.</div>
+        </div>
+        <button class="close-btn soft" type="button" onclick="closeSheet()">×</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="pinNameInput">Paddock Name</label>
+          <input id="pinNameInput" placeholder="Example: Back 12" />
+        </div>
+
+        <div class="field">
+          <label for="pinAreaInput">Area (ha)</label>
+          <input id="pinAreaInput" placeholder="Optional" />
+        </div>
+
+        <div class="field">
+          <label for="pinUseInput">Use</label>
+          <input id="pinUseInput" placeholder="Grazing / Cropping / Hay / Other" />
+        </div>
+
+        <div class="field">
+          <label for="pinNotesInput">Paddock Notes</label>
+          <textarea id="pinNotesInput" placeholder="Optional paddock notes"></textarea>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="primary" type="button" onclick="saveSelectedPinOnly()">Save Pin</button>
+        <button class="danger" type="button" onclick="deleteSelectedPin()">Delete Pin</button>
+      </div>
+
+      <div class="action-tabs">
+        <button id="jobTabBtn" class="job active" type="button" onclick="selectActionTab('job')">Job</button>
+        <button id="feedTabBtn" class="feed" type="button" onclick="selectActionTab('feed')">Feed</button>
+        <button id="stockTabBtn" class="stock" type="button" onclick="selectActionTab('stock')">Stock</button>
+      </div>
+
+      <div id="jobPanel" class="record-panel">
+        <div class="record-title">Add Job</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="jobDateInput">Date</label>
+            <input id="jobDateInput" type="date" />
+          </div>
+
+          <div class="field">
+            <label for="jobTypeInput">Job Type</label>
+            <select id="jobTypeInput">
+              <option value="">Select Job Type</option>
+              <option value="Spraying">Spraying</option>
+              <option value="Feeding">Feeding</option>
+              <option value="Break Feeding">Break Feeding</option>
+              <option value="Moving Stock">Moving Stock</option>
+              <option value="Irrigation">Irrigation</option>
+              <option value="Fencing">Fencing</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Cultivating">Cultivating</option>
+              <option value="Sowing">Sowing</option>
+              <option value="Hay Cutting">Hay Cutting</option>
+              <option value="Hay Baling">Hay Baling</option>
+              <option value="Hay Storing">Hay Storing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="jobStatusInput">Status</label>
+            <select id="jobStatusInput">
+              <option value="Planned">Planned</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="jobPriorityInput">Priority</label>
+            <select id="jobPriorityInput">
+              <option value="">Select Priority</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="jobNotesInput">Job Notes</label>
+            <textarea id="jobNotesInput" placeholder="What needs doing?"></textarea>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="job" type="button" onclick="saveJobRecord()">Save Job</button>
+        </div>
+      </div>
+
+      <div id="feedPanel" class="record-panel hidden">
+        <div class="record-title">Add Feed</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="feedDateInput">Date</label>
+            <input id="feedDateInput" type="date" />
+          </div>
+
+          <div class="field">
+            <label for="feedTypeInput">Feed Type</label>
+            <select id="feedTypeInput">
+              <option value="">Select Feed Type</option>
+              <option value="Grazing">Grazing</option>
+              <option value="Hay">Hay</option>
+              <option value="Silage">Silage</option>
+              <option value="Mix">Mix</option>
+              <option value="Meal">Meal</option>
+              <option value="Grain">Grain</option>
+              <option value="Minerals">Minerals</option>
+              <option value="Break Feeding">Break Feeding</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="feedAmountInput">Amount</label>
+            <input id="feedAmountInput" placeholder="Example: 12 bales" />
+          </div>
+
+          <div class="field">
+            <label for="feedNotesInput">Feed Notes</label>
+            <textarea id="feedNotesInput" placeholder="Feed notes"></textarea>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="feed" type="button" onclick="saveFeedRecord()">Save Feed</button>
+        </div>
+      </div>
+
+      <div id="stockPanel" class="record-panel hidden">
+        <div class="record-title">Move Stock</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="stockDateInput">Date</label>
+            <input id="stockDateInput" type="date" />
+          </div>
+
+          <div class="field">
+            <label for="stockUnitInput">Stock Unit</label>
+            <input id="stockUnitInput" placeholder="Example: SU1" />
+          </div>
+
+          <div class="field">
+            <label for="stockDescriptionInput">Description</label>
+            <input id="stockDescriptionInput" placeholder="Example: 1000 ewes" />
+          </div>
+
+          <div class="field">
+            <label for="stockToInput">To Paddock</label>
+            <input id="stockToInput" placeholder="Destination paddock" />
+          </div>
+
+          <div class="field">
+            <label for="stockReasonInput">Reason</label>
+            <input id="stockReasonInput" placeholder="Example: Fresh break" />
+          </div>
+
+          <div class="field">
+            <label for="stockNotesInput">Stock Notes</label>
+            <textarea id="stockNotesInput" placeholder="Stock movement notes"></textarea>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="stock" type="button" onclick="saveStockRecord()">Save Stock Move</button>
+        </div>
+      </div>
+
+      <div class="recent">
+        <div class="recent-title">Recent for this paddock</div>
+        <div id="recentList"></div>
+      </div>
+    </section>
   </div>
 
   <script>
-    function goBack() {
-      window.location.href = "index.html";
+    const STORAGE_KEYS = {
+      mapImageName: "ofs_v3_map_image_name",
+      pins: "ofs_v3_map_pins",
+      oldPins: "ofs_v2_blank_pins",
+      selectedPinId: "ofs_v3_selected_pin_id"
+    };
+
+    let pins = [];
+    let jobs = [];
+    let feedRecords = [];
+    let stockMovements = [];
+    let selectedPinId = "";
+    let dragState = null;
+    let activeActionTab = "job";
+    let currentMapObjectUrl = "";
+
+    function makeId() {
+      return "pin_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
     }
+
+    function readArray(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveArray(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function cleanText(value) {
+      return String(value || "").trim();
+    }
+
+    function setStatus(message) {
+      document.getElementById("statusBox").textContent = message;
+    }
+
+    function todayIso() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function formatDate(dateValue) {
+      if (!dateValue) return "";
+      const parts = String(dateValue).split("-");
+      if (parts.length !== 3) return dateValue;
+      return parts[2] + "/" + parts[1] + "/" + parts[0];
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function loadData() {
+      pins = readArray(STORAGE_KEYS.pins);
+
+      if (pins.length === 0) {
+        pins = readArray(STORAGE_KEYS.oldPins);
+      }
+
+      jobs = readArray("jobs");
+      feedRecords = readArray("feedRecords");
+      stockMovements = readArray("stockMovements");
+      selectedPinId = localStorage.getItem(STORAGE_KEYS.selectedPinId) || "";
+
+      normalisePins();
+      removePlaceholderPaddocks();
+      showNoMapMessage();
+      renderPins();
+
+      const savedName = localStorage.getItem(STORAGE_KEYS.mapImageName);
+      if (savedName) {
+        setStatus("Map file remembered: " + savedName + ". Re-upload after refresh if image is not visible.");
+      } else {
+        setStatus("Ready. Upload map or add pin.");
+      }
+    }
+
+    function normalisePins() {
+      pins = pins
+        .filter(function (pin) {
+          return pin && typeof pin === "object";
+        })
+        .map(function (pin) {
+          return {
+            id: pin.id || makeId(),
+            name: cleanText(pin.name),
+            area: cleanText(pin.area),
+            use: cleanText(pin.use),
+            notes: cleanText(pin.notes),
+            x: Number.isFinite(Number(pin.x)) ? Number(pin.x) : 50,
+            y: Number.isFinite(Number(pin.y)) ? Number(pin.y) : 50
+          };
+        });
+
+      savePins();
+    }
+
+    function savePins() {
+      saveArray(STORAGE_KEYS.pins, pins);
+    }
+
+    function isPlaceholderPaddockName(name) {
+      const text = cleanText(name).toLowerCase().replace(/\s+/g, "");
+      return text === "test" || text === "test1" || text === "test2";
+    }
+
+    function removePlaceholderPaddocks() {
+      const paddocks = readArray("paddocks").filter(function (paddock) {
+        return !isPlaceholderPaddockName(paddock && paddock.name);
+      });
+
+      saveArray("paddocks", paddocks);
+    }
+
+    function syncPinsToPaddocks() {
+      const existing = readArray("paddocks").filter(function (paddock) {
+        return !isPlaceholderPaddockName(paddock && paddock.name);
+      });
+
+      const namedPins = pins.filter(function (pin) {
+        return cleanText(pin.name);
+      });
+
+      const pinNames = namedPins.map(function (pin) {
+        return cleanText(pin.name).toLowerCase();
+      });
+
+      const preserved = existing.filter(function (paddock) {
+        const name = cleanText(paddock.name).toLowerCase();
+        return name && !pinNames.includes(name);
+      });
+
+      const fromPins = namedPins.map(function (pin) {
+        return {
+          name: cleanText(pin.name),
+          area: cleanText(pin.area),
+          use: cleanText(pin.use),
+          notes: cleanText(pin.notes)
+        };
+      });
+
+      saveArray("paddocks", preserved.concat(fromPins));
+    }
+
+    function showNoMapMessage() {
+      const mapImage = document.getElementById("mapImage");
+      const emptyMap = document.getElementById("emptyMap");
+      const mapStage = document.getElementById("mapStage");
+
+      mapImage.style.display = "none";
+      mapImage.removeAttribute("src");
+      emptyMap.style.display = "flex";
+      mapStage.style.minWidth = "100%";
+      mapStage.style.minHeight = "100%";
+    }
+
+    function showMapFromUrl(url) {
+      const mapImage = document.getElementById("mapImage");
+      const emptyMap = document.getElementById("emptyMap");
+      const mapStage = document.getElementById("mapStage");
+
+      mapImage.onload = function () {
+        emptyMap.style.display = "none";
+        mapImage.style.display = "block";
+        mapStage.style.minWidth = mapImage.offsetWidth + "px";
+        mapStage.style.minHeight = mapImage.offsetHeight + "px";
+        renderPins();
+        setStatus("Map loaded. Tap + Pin.");
+      };
+
+      mapImage.onerror = function () {
+        showNoMapMessage();
+        setStatus("Map image could not load. Try a JPG or PNG screenshot.");
+      };
+
+      mapImage.src = url;
+    }
+
+    function handleMapImageInput(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (currentMapObjectUrl) {
+        URL.revokeObjectURL(currentMapObjectUrl);
+      }
+
+      currentMapObjectUrl = URL.createObjectURL(file);
+      localStorage.setItem(STORAGE_KEYS.mapImageName, file.name);
+
+      setStatus("Loading map: " + file.name);
+      showMapFromUrl(currentMapObjectUrl);
+
+      event.target.value = "";
+    }
+
+    function clearMapImage() {
+      const confirmed = window.confirm("Clear uploaded farm map?");
+      if (!confirmed) return;
+
+      if (currentMapObjectUrl) {
+        URL.revokeObjectURL(currentMapObjectUrl);
+      }
+
+      currentMapObjectUrl = "";
+      localStorage.removeItem(STORAGE_KEYS.mapImageName);
+      showNoMapMessage();
+      renderPins();
+      setStatus("Map cleared.");
+    }
+
+    function addBlankPin() {
+      const mapScroll = document.getElementById("mapScroll");
+      const mapStage = document.getElementById("mapStage");
+
+      const visibleCenterX = mapScroll.scrollLeft + mapScroll.clientWidth / 2;
+      const visibleCenterY = mapScroll.scrollTop + mapScroll.clientHeight / 2;
+
+      const x = (visibleCenterX / Math.max(1, mapStage.offsetWidth)) * 100;
+      const y = (visibleCenterY / Math.max(1, mapStage.offsetHeight)) * 100;
+
+      const newPin = {
+        id: makeId(),
+        name: "",
+        area: "",
+        use: "",
+        notes: "",
+        x: Math.max(5, Math.min(95, x)),
+        y: Math.max(5, Math.min(95, y))
+      };
+
+      pins.push(newPin);
+      selectedPinId = newPin.id;
+      localStorage.setItem(STORAGE_KEYS.selectedPinId, selectedPinId);
+
+      savePins();
+      renderPins();
+      openSheetForPin(newPin.id);
+      setStatus("Blank pin added. Drag it, tap it, name it.");
+    }
+
+    function resetPins() {
+      const confirmed = window.confirm("Delete all pins and start again?");
+      if (!confirmed) return;
+
+      pins = [];
+      selectedPinId = "";
+      localStorage.removeItem(STORAGE_KEYS.selectedPinId);
+      savePins();
+      syncPinsToPaddocks();
+      renderPins();
+      closeSheet();
+      setStatus("Pins reset.");
+    }
+
+    function saveEverything() {
+      savePins();
+      syncPinsToPaddocks();
+      setStatus("Saved.");
+    }
+
+    function getSelectedPin() {
+      return pins.find(function (pin) {
+        return pin.id === selectedPinId;
+      });
+    }
+
+    function renderPins() {
+      const layer = document.getElementById("pinLayer");
+      layer.innerHTML = "";
+
+      pins.forEach(function (pin, index) {
+        const node = document.createElement("div");
+        const label = cleanText(pin.name) || "Pin " + (index + 1);
+        const isSelected = pin.id === selectedPinId;
+
+        node.className =
+          "pin" +
+          (cleanText(pin.name) ? "" : " blank") +
+          (isSelected ? " selected" : "");
+
+        node.style.left = pin.x + "%";
+        node.style.top = pin.y + "%";
+        node.textContent = label;
+        node.dataset.id = pin.id;
+
+        node.addEventListener("click", function (event) {
+          event.stopPropagation();
+
+          if (dragState && dragState.didMove) {
+            return;
+          }
+
+          openSheetForPin(pin.id);
+        });
+
+        node.addEventListener("mousedown", function (event) {
+          startDrag(event, pin.id);
+        });
+
+        node.addEventListener("touchstart", function (event) {
+          startDrag(event, pin.id);
+        }, { passive: false });
+
+        layer.appendChild(node);
+      });
+    }
+
+    function getStagePoint(event) {
+      const stage = document.getElementById("mapStage");
+      const rect = stage.getBoundingClientRect();
+
+      const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+      const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+
+      const x = ((clientX - rect.left) / Math.max(1, rect.width)) * 100;
+      const y = ((clientY - rect.top) / Math.max(1, rect.height)) * 100;
+
+      return {
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y))
+      };
+    }
+
+    function startDrag(event, pinId) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      selectedPinId = pinId;
+      localStorage.setItem(STORAGE_KEYS.selectedPinId, selectedPinId);
+
+      dragState = {
+        pinId: pinId,
+        didMove: false
+      };
+
+      window.addEventListener("mousemove", handleDrag);
+      window.addEventListener("mouseup", stopDrag);
+      window.addEventListener("touchmove", handleDrag, { passive: false });
+      window.addEventListener("touchend", stopDrag);
+    }
+
+    function handleDrag(event) {
+      if (!dragState) return;
+
+      event.preventDefault();
+      dragState.didMove = true;
+
+      const point = getStagePoint(event);
+
+      pins = pins.map(function (pin) {
+        if (pin.id !== dragState.pinId) return pin;
+
+        return {
+          ...pin,
+          x: point.x,
+          y: point.y
+        };
+      });
+
+      renderPins();
+    }
+
+    function stopDrag() {
+      if (!dragState) return;
+
+      const moved = dragState.didMove;
+      const pinId = dragState.pinId;
+
+      savePins();
+
+      window.removeEventListener("mousemove", handleDrag);
+      window.removeEventListener("mouseup", stopDrag);
+      window.removeEventListener("touchmove", handleDrag);
+      window.removeEventListener("touchend", stopDrag);
+
+      dragState = null;
+      renderPins();
+
+      if (moved) {
+        setStatus("Pin moved. Tap it to enter data.");
+      } else {
+        openSheetForPin(pinId);
+      }
+    }
+
+    function openSheetForPin(pinId) {
+      selectedPinId = pinId;
+      localStorage.setItem(STORAGE_KEYS.selectedPinId, selectedPinId);
+
+      const pin = getSelectedPin();
+      if (!pin) return;
+
+      document.getElementById("sheetTitle").textContent = cleanText(pin.name) || "Blank Pin";
+      document.getElementById("sheetSubtitle").textContent = cleanText(pin.name)
+        ? "Enter paddock data."
+        : "Name this paddock first.";
+
+      document.getElementById("pinNameInput").value = pin.name || "";
+      document.getElementById("pinAreaInput").value = pin.area || "";
+      document.getElementById("pinUseInput").value = pin.use || "";
+      document.getElementById("pinNotesInput").value = pin.notes || "";
+
+      setDefaultDates();
+      renderRecent();
+      selectActionTab(activeActionTab);
+      renderPins();
+
+      document.getElementById("sheetBackdrop").classList.add("open");
+
+      setTimeout(function () {
+        if (!cleanText(pin.name)) {
+          document.getElementById("pinNameInput").focus();
+        }
+      }, 50);
+    }
+
+    function closeSheet() {
+      document.getElementById("sheetBackdrop").classList.remove("open");
+    }
+
+    function setDefaultDates() {
+      const today = todayIso();
+
+      if (!document.getElementById("jobDateInput").value) {
+        document.getElementById("jobDateInput").value = today;
+      }
+
+      if (!document.getElementById("feedDateInput").value) {
+        document.getElementById("feedDateInput").value = today;
+      }
+
+      if (!document.getElementById("stockDateInput").value) {
+        document.getElementById("stockDateInput").value = today;
+      }
+    }
+
+    function saveSelectedPinOnly() {
+      const pin = getSelectedPin();
+
+      if (!pin) {
+        alert("Select a pin first.");
+        return false;
+      }
+
+      const name = cleanText(document.getElementById("pinNameInput").value);
+      const area = cleanText(document.getElementById("pinAreaInput").value);
+      const use = cleanText(document.getElementById("pinUseInput").value);
+      const notes = cleanText(document.getElementById("pinNotesInput").value);
+
+      if (!name) {
+        alert("Paddock name required.");
+        return false;
+      }
+
+      pin.name = name;
+      pin.area = area;
+      pin.use = use;
+      pin.notes = notes;
+
+      savePins();
+      syncPinsToPaddocks();
+      renderPins();
+
+      document.getElementById("sheetTitle").textContent = pin.name;
+      document.getElementById("sheetSubtitle").textContent = "Enter paddock data.";
+
+      setStatus("Saved paddock: " + pin.name);
+      return true;
+    }
+
+    function deleteSelectedPin() {
+      if (!selectedPinId) {
+        alert("Select a pin first.");
+        return;
+      }
+
+      const confirmed = window.confirm("Delete this pin?");
+      if (!confirmed) return;
+
+      pins = pins.filter(function (pin) {
+        return pin.id !== selectedPinId;
+      });
+
+      selectedPinId = "";
+      localStorage.removeItem(STORAGE_KEYS.selectedPinId);
+
+      savePins();
+      syncPinsToPaddocks();
+      renderPins();
+      closeSheet();
+      setStatus("Pin deleted.");
+    }
+
+    function selectActionTab(tabName) {
+      activeActionTab = tabName;
+
+      document.getElementById("jobPanel").classList.add("hidden");
+      document.getElementById("feedPanel").classList.add("hidden");
+      document.getElementById("stockPanel").classList.add("hidden");
+
+      document.getElementById("jobTabBtn").classList.remove("active");
+      document.getElementById("feedTabBtn").classList.remove("active");
+      document.getElementById("stockTabBtn").classList.remove("active");
+
+      if (tabName === "job") {
+        document.getElementById("jobPanel").classList.remove("hidden");
+        document.getElementById("jobTabBtn").classList.add("active");
+      }
+
+      if (tabName === "feed") {
+        document.getElementById("feedPanel").classList.remove("hidden");
+        document.getElementById("feedTabBtn").classList.add("active");
+      }
+
+      if (tabName === "stock") {
+        document.getElementById("stockPanel").classList.remove("hidden");
+        document.getElementById("stockTabBtn").classList.add("active");
+      }
+    }
+
+    function currentPaddockName() {
+      const pin = getSelectedPin();
+      if (!pin) return "";
+      return cleanText(pin.name);
+    }
+
+    function saveJobRecord() {
+      if (!saveSelectedPinOnly()) return;
+
+      const paddockName = currentPaddockName();
+      const type = cleanText(document.getElementById("jobTypeInput").value);
+
+      if (!type) {
+        alert("Select job type.");
+        return;
+      }
+
+      jobs = readArray("jobs");
+
+      jobs.push({
+        date: document.getElementById("jobDateInput").value,
+        paddock: paddockName,
+        type: type,
+        feedType: "",
+        feedAmount: "",
+        stockUnit: "",
+        status: document.getElementById("jobStatusInput").value || "Planned",
+        priority: document.getElementById("jobPriorityInput").value,
+        notes: document.getElementById("jobNotesInput").value
+      });
+
+      saveArray("jobs", jobs);
+
+      document.getElementById("jobTypeInput").value = "";
+      document.getElementById("jobPriorityInput").value = "";
+      document.getElementById("jobNotesInput").value = "";
+      document.getElementById("jobDateInput").value = todayIso();
+
+      renderRecent();
+      closeSheet();
+      setStatus("Job saved for " + paddockName + ".");
+    }
+
+    function saveFeedRecord() {
+      if (!saveSelectedPinOnly()) return;
+
+      const paddockName = currentPaddockName();
+      const feedType = cleanText(document.getElementById("feedTypeInput").value);
+
+      if (!feedType) {
+        alert("Select feed type.");
+        return;
+      }
+
+      feedRecords = readArray("feedRecords");
+
+      feedRecords.push({
+        date: document.getElementById("feedDateInput").value,
+        paddock: paddockName,
+        feedType: feedType,
+        amount: document.getElementById("feedAmountInput").value,
+        notes: document.getElementById("feedNotesInput").value
+      });
+
+      saveArray("feedRecords", feedRecords);
+
+      document.getElementById("feedTypeInput").value = "";
+      document.getElementById("feedAmountInput").value = "";
+      document.getElementById("feedNotesInput").value = "";
+      document.getElementById("feedDateInput").value = todayIso();
+
+      renderRecent();
+      closeSheet();
+      setStatus("Feed saved for " + paddockName + ".");
+    }
+
+    function saveStockRecord() {
+      if (!saveSelectedPinOnly()) return;
+
+      const paddockName = currentPaddockName();
+      const stockUnit = cleanText(document.getElementById("stockUnitInput").value);
+      const stockDescription = cleanText(document.getElementById("stockDescriptionInput").value);
+      const toPaddock = cleanText(document.getElementById("stockToInput").value);
+
+      if (!stockUnit || !stockDescription || !toPaddock) {
+        alert("Enter stock unit, description, and destination paddock.");
+        return;
+      }
+
+      stockMovements = readArray("stockMovements");
+
+      stockMovements.push({
+        date: document.getElementById("stockDateInput").value,
+        stockUnit: stockUnit,
+        stockDescription: stockDescription,
+        fromPaddock: paddockName,
+        toPaddock: toPaddock,
+        reason: document.getElementById("stockReasonInput").value,
+        notes: document.getElementById("stockNotesInput").value
+      });
+
+      saveArray("stockMovements", stockMovements);
+
+      document.getElementById("stockUnitInput").value = "";
+      document.getElementById("stockDescriptionInput").value = "";
+      document.getElementById("stockToInput").value = "";
+      document.getElementById("stockReasonInput").value = "";
+      document.getElementById("stockNotesInput").value = "";
+      document.getElementById("stockDateInput").value = todayIso();
+
+      renderRecent();
+      closeSheet();
+      setStatus("Stock movement saved from " + paddockName + ".");
+    }
+
+    function renderRecent() {
+      const recentList = document.getElementById("recentList");
+      const paddockName = currentPaddockName();
+
+      if (!paddockName) {
+        recentList.innerHTML = '<div class="recent-item">Name this pin to see records.</div>';
+        return;
+      }
+
+      jobs = readArray("jobs");
+      feedRecords = readArray("feedRecords");
+      stockMovements = readArray("stockMovements");
+
+      const rows = [];
+
+      jobs
+        .filter(function (job) {
+          return job.paddock === paddockName;
+        })
+        .slice()
+        .reverse()
+        .slice(0, 2)
+        .forEach(function (job) {
+          rows.push(
+            '<div class="recent-item">' +
+              '<strong>Job:</strong> ' + escapeHtml(job.type || "-") + '<br>' +
+              'Status: ' + escapeHtml(job.status || "Planned") + '<br>' +
+              (job.date ? 'Date: ' + formatDate(job.date) + '<br>' : '') +
+              'Notes: ' + escapeHtml(job.notes || "-") +
+            '</div>'
+          );
+        });
+
+      feedRecords
+        .filter(function (feed) {
+          return feed.paddock === paddockName;
+        })
+        .slice()
+        .reverse()
+        .slice(0, 2)
+        .forEach(function (feed) {
+          rows.push(
+            '<div class="recent-item">' +
+              '<strong>Feed:</strong> ' + escapeHtml(feed.feedType || "-") + '<br>' +
+              (feed.amount ? 'Amount: ' + escapeHtml(feed.amount) + '<br>' : '') +
+              (feed.date ? 'Date: ' + formatDate(feed.date) + '<br>' : '') +
+              'Notes: ' + escapeHtml(feed.notes || "-") +
+            '</div>'
+          );
+        });
+
+      stockMovements
+        .filter(function (movement) {
+          return movement.fromPaddock === paddockName || movement.toPaddock === paddockName;
+        })
+        .slice()
+        .reverse()
+        .slice(0, 2)
+        .forEach(function (movement) {
+          rows.push(
+            '<div class="recent-item">' +
+              '<strong>Stock:</strong> ' + escapeHtml(movement.stockUnit || "-") + '<br>' +
+              'From: ' + escapeHtml(movement.fromPaddock || "-") + '<br>' +
+              'To: ' + escapeHtml(movement.toPaddock || "-") + '<br>' +
+              (movement.date ? 'Date: ' + formatDate(movement.date) + '<br>' : '') +
+              'Notes: ' + escapeHtml(movement.notes || "-") +
+            '</div>'
+          );
+        });
+
+      recentList.innerHTML = rows.length ? rows.join("") : '<div class="recent-item">No records yet.</div>';
+    }
+
+    function wireMapInputs() {
+      ["mapImageInputTop", "mapImageInputQuick", "mapImageInputEmpty"].forEach(function (id) {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener("change", handleMapImageInput);
+        }
+      });
+    }
+
+    document.getElementById("sheetBackdrop").addEventListener("click", function () {
+      closeSheet();
+    });
+
+    wireMapInputs();
+    loadData();
   </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>
