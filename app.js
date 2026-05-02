@@ -199,6 +199,7 @@ function addPaddock() {
   paddocks.push({ name, area, use, notes });
   savePaddocks();
   renderPaddocks();
+  renderBulkActionPaddockList();
   renderJobPaddockDropdown();
   renderFeedPaddockDropdown();
   renderStockPaddockDropdowns();
@@ -253,6 +254,7 @@ function bulkAddPaddocks() {
 
   savePaddocks();
   renderPaddocks();
+  renderBulkActionPaddockList();
   renderJobPaddockDropdown();
   renderFeedPaddockDropdown();
   renderStockPaddockDropdowns();
@@ -274,6 +276,199 @@ function bulkAddPaddocks() {
   alert("No new paddocks added. They may already exist.");
 }
 
+function renderBulkActionPaddockList() {
+  const container = document.getElementById("bulkActionPaddockList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (paddocks.length === 0) {
+    container.innerHTML = `<p>No paddocks available yet.</p>`;
+    return;
+  }
+
+  paddocks.forEach((p, index) => {
+    const label = document.createElement("label");
+    label.style.display = "block";
+    label.style.padding = "8px";
+    label.style.marginBottom = "6px";
+    label.style.border = "1px solid #ddd";
+    label.style.borderRadius = "8px";
+    label.style.background = "#fff";
+
+    label.innerHTML = `
+      <input type="checkbox" class="bulk-paddock-checkbox" value="${index}" />
+      ${p.name}
+    `;
+
+    container.appendChild(label);
+  });
+}
+
+function handleBulkActionTypeChange() {
+  const actionType = document.getElementById("bulkActionType").value;
+  const bulkJobType = document.getElementById("bulkJobType");
+  const bulkFeedType = document.getElementById("bulkFeedType");
+  const bulkFeedAmount = document.getElementById("bulkFeedAmount");
+  const bulkStockUnit = document.getElementById("bulkStockUnit");
+  const bulkJobStatus = document.getElementById("bulkJobStatus");
+  const bulkJobPriority = document.getElementById("bulkJobPriority");
+
+  bulkJobType.style.display = "none";
+  bulkFeedType.style.display = "none";
+  bulkFeedAmount.style.display = "none";
+  bulkStockUnit.style.display = "none";
+  bulkJobStatus.style.display = "none";
+  bulkJobPriority.style.display = "none";
+
+  if (actionType === "Job") {
+    bulkJobType.style.display = "block";
+    bulkJobStatus.style.display = "block";
+    bulkJobPriority.style.display = "block";
+    return;
+  }
+
+  if (actionType === "Feed") {
+    bulkFeedType.style.display = "block";
+    bulkFeedAmount.style.display = "block";
+    return;
+  }
+
+  if (actionType === "Break Feeding") {
+    bulkFeedType.style.display = "block";
+    bulkFeedAmount.style.display = "block";
+    bulkStockUnit.style.display = "block";
+    bulkJobStatus.style.display = "block";
+    bulkJobPriority.style.display = "block";
+  }
+}
+
+function getSelectedBulkPaddocks() {
+  const selected = Array.from(document.querySelectorAll(".bulk-paddock-checkbox:checked"));
+
+  return selected
+    .map((checkbox) => Number(checkbox.value))
+    .filter((index) => !Number.isNaN(index) && paddocks[index]);
+}
+
+function applyBulkPaddockAction() {
+  const selectedIndexes = getSelectedBulkPaddocks();
+  const date = document.getElementById("bulkActionDate").value;
+  const actionType = document.getElementById("bulkActionType").value;
+  const bulkJobType = document.getElementById("bulkJobType").value;
+  const bulkFeedType = document.getElementById("bulkFeedType").value;
+  const bulkFeedAmount = document.getElementById("bulkFeedAmount").value;
+  const bulkStockUnit = document.getElementById("bulkStockUnit").value;
+  const bulkJobStatus = document.getElementById("bulkJobStatus").value;
+  const bulkJobPriority = document.getElementById("bulkJobPriority").value;
+  const notes = document.getElementById("bulkActionNotes").value;
+
+  if (selectedIndexes.length === 0) {
+    alert("Select at least one paddock");
+    return;
+  }
+
+  if (!actionType) {
+    alert("Select a bulk action");
+    return;
+  }
+
+  if (actionType === "Job" && !bulkJobType) {
+    alert("Select a job type");
+    return;
+  }
+
+  if ((actionType === "Feed" || actionType === "Break Feeding") && !bulkFeedType) {
+    alert("Select a feed type");
+    return;
+  }
+
+  selectedIndexes.forEach((index) => {
+    const paddockName = paddocks[index]?.name || "Unknown";
+
+    if (actionType === "Job") {
+      jobs.push({
+        date,
+        paddock: paddockName,
+        type: bulkJobType,
+        feedType: bulkJobType === "Feeding" ? bulkFeedType : "",
+        feedAmount: "",
+        stockUnit: "",
+        status: bulkJobStatus || "Planned",
+        priority: bulkJobPriority,
+        notes
+      });
+    }
+
+    if (actionType === "Feed") {
+      feedRecords.push({
+        date,
+        paddock: paddockName,
+        feedType: bulkFeedType,
+        amount: bulkFeedAmount,
+        notes
+      });
+    }
+
+    if (actionType === "Break Feeding") {
+      jobs.push({
+        date,
+        paddock: paddockName,
+        type: "Break Feeding",
+        feedType: bulkFeedType,
+        feedAmount: bulkFeedAmount,
+        stockUnit: bulkStockUnit,
+        status: bulkJobStatus || "Planned",
+        priority: bulkJobPriority,
+        notes
+      });
+
+      const feedNotes = [
+        bulkStockUnit ? `Stock Unit: ${bulkStockUnit}` : "",
+        notes || ""
+      ].filter(Boolean).join(" | ");
+
+      feedRecords.push({
+        date,
+        paddock: paddockName,
+        feedType: `Break Feeding - ${bulkFeedType}`,
+        amount: bulkFeedAmount,
+        notes: feedNotes
+      });
+    }
+  });
+
+  saveJobs();
+  saveFeedRecords();
+
+  renderJobs();
+  renderFeedRecords();
+  renderMap();
+  clearBulkPaddockActionForm();
+
+  alert(`Bulk action applied to ${selectedIndexes.length} paddock(s).`);
+}
+
+function clearBulkPaddockActionForm() {
+  const checkboxes = document.querySelectorAll(".bulk-paddock-checkbox");
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+
+  document.getElementById("bulkActionDate").value = "";
+  document.getElementById("bulkActionType").value = "";
+  document.getElementById("bulkJobType").value = "";
+  document.getElementById("bulkFeedType").value = "";
+  document.getElementById("bulkFeedAmount").value = "";
+  document.getElementById("bulkStockUnit").value = "";
+  document.getElementById("bulkJobStatus").value = "";
+  document.getElementById("bulkJobPriority").value = "";
+  document.getElementById("bulkActionNotes").value = "";
+
+  handleBulkActionTypeChange();
+}
+
 function clearPaddockForm() {
   document.getElementById("name").value = "";
   document.getElementById("area").value = "";
@@ -287,6 +482,7 @@ function deletePaddock(index) {
   paddocks.splice(index, 1);
   savePaddocks();
   renderPaddocks();
+  renderBulkActionPaddockList();
   renderJobPaddockDropdown();
   renderFeedPaddockDropdown();
   renderStockPaddockDropdowns();
@@ -313,6 +509,7 @@ function editPaddock(index) {
 
   savePaddocks();
   renderPaddocks();
+  renderBulkActionPaddockList();
   renderJobPaddockDropdown();
   renderFeedPaddockDropdown();
   renderStockPaddockDropdowns();
@@ -452,14 +649,28 @@ function goToMoveStockFromMap(paddockName) {
 function handleJobTypeChange() {
   const jobType = document.getElementById("jobType").value;
   const feedType = document.getElementById("feedType");
+  const jobFeedAmount = document.getElementById("jobFeedAmount");
+  const jobStockUnit = document.getElementById("jobStockUnit");
 
   if (!feedType) return;
 
-  if (jobType === "Feeding") {
+  if (jobType === "Feeding" || jobType === "Break Feeding") {
     feedType.style.display = "block";
   } else {
     feedType.style.display = "none";
     feedType.value = "";
+  }
+
+  if (jobFeedAmount && jobStockUnit) {
+    if (jobType === "Break Feeding") {
+      jobFeedAmount.style.display = "block";
+      jobStockUnit.style.display = "block";
+    } else {
+      jobFeedAmount.style.display = "none";
+      jobFeedAmount.value = "";
+      jobStockUnit.style.display = "none";
+      jobStockUnit.value = "";
+    }
   }
 }
 
@@ -468,12 +679,19 @@ function addJob() {
   const paddockIndex = document.getElementById("jobPaddock").value;
   const type = document.getElementById("jobType").value;
   const feedType = document.getElementById("feedType").value;
+  const jobFeedAmount = document.getElementById("jobFeedAmount").value;
+  const jobStockUnit = document.getElementById("jobStockUnit").value;
   const status = document.getElementById("jobStatus").value;
   const priority = document.getElementById("jobPriority").value;
   const notes = document.getElementById("jobNotes").value;
 
   if (paddockIndex === "" || !type) {
     alert("Select paddock and job type");
+    return;
+  }
+
+  if (type === "Break Feeding" && !feedType) {
+    alert("Select feed type for break feeding");
     return;
   }
 
@@ -484,10 +702,30 @@ function addJob() {
     paddock: paddockName,
     type,
     feedType,
+    feedAmount: jobFeedAmount,
+    stockUnit: jobStockUnit,
     status: status || "Planned",
     priority,
     notes
   });
+
+  if (type === "Break Feeding") {
+    const feedNotes = [
+      jobStockUnit ? `Stock Unit: ${jobStockUnit}` : "",
+      notes || ""
+    ].filter(Boolean).join(" | ");
+
+    feedRecords.push({
+      date,
+      paddock: paddockName,
+      feedType: `Break Feeding - ${feedType}`,
+      amount: jobFeedAmount,
+      notes: feedNotes
+    });
+
+    saveFeedRecords();
+    renderFeedRecords();
+  }
 
   saveJobs();
   renderJobs();
@@ -504,6 +742,10 @@ function clearJobForm() {
   document.getElementById("jobType").value = "";
   document.getElementById("feedType").value = "";
   document.getElementById("feedType").style.display = "none";
+  document.getElementById("jobFeedAmount").value = "";
+  document.getElementById("jobFeedAmount").style.display = "none";
+  document.getElementById("jobStockUnit").value = "";
+  document.getElementById("jobStockUnit").style.display = "none";
   document.getElementById("jobStatus").value = "";
   document.getElementById("jobPriority").value = "";
   document.getElementById("jobNotes").value = "";
@@ -588,6 +830,8 @@ function renderJobs() {
     div.className = "paddock-item";
 
     const feedLine = j.feedType ? `Feed: ${j.feedType}<br>` : "";
+    const feedAmountLine = j.feedAmount ? `Feed Amount: ${j.feedAmount}<br>` : "";
+    const stockUnitLine = j.stockUnit ? `Stock Unit: ${j.stockUnit}<br>` : "";
     const dateLine = j.date ? `Date: ${formatDate(j.date)}<br>` : "";
     const statusText = j.status || "Planned";
     const statusClass = getStatusClass(statusText);
@@ -600,6 +844,8 @@ function renderJobs() {
       <strong>${j.type}</strong> (${j.paddock})<br>
       ${dateLine}
       ${feedLine}
+      ${feedAmountLine}
+      ${stockUnitLine}
       Status: <span class="status-badge ${statusClass}">${statusText}</span><br>
       Priority: ${j.priority || "-"}<br>
       Notes: ${j.notes || "-"}<br>
@@ -1121,6 +1367,7 @@ function showPaddockDetail(index) {
 }
 
 renderPaddocks();
+renderBulkActionPaddockList();
 renderJobPaddockDropdown();
 renderFeedPaddockDropdown();
 renderStockPaddockDropdowns();
@@ -1133,3 +1380,4 @@ renderEquipment();
 renderCropRecords();
 renderInventoryItems();
 renderMap();
+handleBulkActionTypeChange();
